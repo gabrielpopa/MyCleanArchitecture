@@ -35,6 +35,12 @@ proguard/
 
 # Android Studio captures folder
 captures/
+# Android Studio
+.idea
+.gradle
+.externalNativeBuild
+build
+captures
 
 # IntelliJ
 *.iml
