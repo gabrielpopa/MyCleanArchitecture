@@ -11,10 +11,9 @@ import com.gabrielpopa.myapplication.domain.login.LoginRepository
 import com.gabrielpopa.myapplication.domain.login.entity.LoginEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import javax.inject.Inject
 
 
-class LoginRepositoryImpl @Inject constructor(private val loginApi: LoginApi) : LoginRepository {
+class LoginRepositoryImpl constructor(private val loginApi: LoginApi) : LoginRepository {
     override suspend fun login(loginRequest: LoginRequest): Flow<BaseResult<LoginEntity, WrappedResponse<LoginResponse>>> {
         return flow {
             val response = loginApi.login(loginRequest)

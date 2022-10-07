@@ -11,29 +11,55 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.gabrielpopa.myapplication.data.common.utils.WrappedResponse
+import com.gabrielpopa.myapplication.data.login.remote.api.LoginApi
 import com.gabrielpopa.myapplication.data.login.remote.dto.LoginRequest
 import com.gabrielpopa.myapplication.data.login.remote.dto.LoginResponse
+import com.gabrielpopa.myapplication.data.login.repository.LoginRepositoryImpl
 import com.gabrielpopa.myapplication.databinding.ActivityMainBinding
+import com.gabrielpopa.myapplication.domain.login.LoginRepository
 import com.gabrielpopa.myapplication.domain.login.entity.LoginEntity
+import com.gabrielpopa.myapplication.domain.login.usecase.LoginUseCase
 import com.gabrielpopa.myapplication.presentation.login.LoginActivityState
 import com.gabrielpopa.myapplication.presentation.login.LoginViewModel
-import dagger.hilt.android.AndroidEntryPoint
+import com.gabrielpopa.myapplication.presentation.login.LoginViewModelFactory
+//import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
-@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
 
-    private val viewModel: LoginViewModel by viewModels()
+    private val viewModel : LoginViewModel by viewModels {
+        val okHttp = OkHttpClient.Builder().apply {
+            connectTimeout(60, TimeUnit.SECONDS)
+            readTimeout(60, TimeUnit.SECONDS)
+            writeTimeout(60, TimeUnit.SECONDS)
+            //addInterceptor(requestInterceptor)
+        }.build()
+        val retrofit = Retrofit.Builder().apply {
+            addConverterFactory(GsonConverterFactory.create())
+            client(okHttp)
+            baseUrl("https://golang-heroku.herokuapp.com/api/")
+        }.build()
+        val loginApi = retrofit.create(LoginApi::class.java)
+        val loginRepository = LoginRepositoryImpl(loginApi)
+        LoginViewModelFactory(LoginUseCase(loginRepository))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //viewModel = ViewModelProvider(this)[LoginViewModel::class.java]
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)

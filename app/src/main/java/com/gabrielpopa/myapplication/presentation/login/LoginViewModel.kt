@@ -8,19 +8,14 @@ import com.gabrielpopa.myapplication.data.login.remote.dto.LoginResponse
 import com.gabrielpopa.myapplication.domain.base.BaseResult
 import com.gabrielpopa.myapplication.domain.login.entity.LoginEntity
 import com.gabrielpopa.myapplication.domain.login.usecase.LoginUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-
-@HiltViewModel
-class LoginViewModel @Inject constructor(private val loginUseCase: LoginUseCase): ViewModel() {
+class LoginViewModel(private val loginUseCase: LoginUseCase) : ViewModel() {
     private val state = MutableStateFlow<LoginActivityState>(LoginActivityState.Init)
     val mState: StateFlow<LoginActivityState> get() = state
-
 
     private fun setLoading(){
         state.value = LoginActivityState.IsLoading(true)
@@ -54,8 +49,6 @@ class LoginViewModel @Inject constructor(private val loginUseCase: LoginUseCase)
                 }
         }
     }
-
-
 
 }
 
