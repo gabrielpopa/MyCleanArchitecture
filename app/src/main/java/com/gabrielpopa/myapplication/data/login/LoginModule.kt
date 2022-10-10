@@ -1,6 +1,6 @@
 package com.gabrielpopa.myapplication.data.login
 
-import com.gabrielpopa.myapplication.domain.login.LoginRepository
+import com.gabrielpopa.myapplication.domain.login.repository.LoginRepository
 import com.gabrielpopa.myapplication.data.login.remote.api.LoginApi
 import com.gabrielpopa.myapplication.data.login.repository.LoginRepositoryImpl
 
