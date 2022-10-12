@@ -15,27 +15,18 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.gabrielpopa.myapplication.R
-import com.gabrielpopa.myapplication.data.common.NetworkModule
 import com.gabrielpopa.myapplication.data.common.utils.WrappedResponse
-import com.gabrielpopa.myapplication.data.login.remote.api.LoginApi
 import com.gabrielpopa.myapplication.data.login.remote.dto.LoginRequest
 import com.gabrielpopa.myapplication.data.login.remote.dto.LoginResponse
-import com.gabrielpopa.myapplication.data.login.repository.LoginRepositoryImpl
-import com.gabrielpopa.myapplication.data.second.remote.api.SecondApi
 import com.gabrielpopa.myapplication.data.second.remote.dto.SecondRequest
 import com.gabrielpopa.myapplication.data.second.remote.dto.SecondResponse
-import com.gabrielpopa.myapplication.data.second.repository.SecondRepositoryImpl
 import com.gabrielpopa.myapplication.databinding.ActivityMainBinding
 import com.gabrielpopa.myapplication.domain.login.entity.LoginEntity
-import com.gabrielpopa.myapplication.domain.login.usecase.LoginUseCase
 import com.gabrielpopa.myapplication.domain.second.entity.SecondEntity
-import com.gabrielpopa.myapplication.domain.second.usecase.SecondUseCase
 import com.gabrielpopa.myapplication.presentation.login.LoginActivityState
 import com.gabrielpopa.myapplication.presentation.login.LoginViewModel
-import com.gabrielpopa.myapplication.presentation.login.LoginViewModelFactory
 import com.gabrielpopa.myapplication.presentation.second.SecondActivityState
 import com.gabrielpopa.myapplication.presentation.second.SecondViewModel
-import com.gabrielpopa.myapplication.presentation.second.SecondViewModelFactory
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -44,17 +35,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
 
-    private val viewModel : LoginViewModel by viewModels {
-        val loginApi = NetworkModule.provideRetrofit().create(LoginApi::class.java)
-        val loginRepository = LoginRepositoryImpl(loginApi)
-        LoginViewModelFactory(LoginUseCase(loginRepository))
-    }
-
-    private val secondViewModel : SecondViewModel by viewModels {
-        val api = NetworkModule.provideRetrofit().create(SecondApi::class.java)
-        val repo = SecondRepositoryImpl(api)
-        SecondViewModelFactory(SecondUseCase(repo))
-    }
+    private val viewModel : LoginViewModel by viewModels()
+    private val secondViewModel : SecondViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

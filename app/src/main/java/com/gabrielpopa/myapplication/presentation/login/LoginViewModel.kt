@@ -3,6 +3,7 @@ package com.gabrielpopa.myapplication.presentation.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gabrielpopa.myapplication.data.common.utils.WrappedResponse
+import com.gabrielpopa.myapplication.data.login.LoginModule
 import com.gabrielpopa.myapplication.data.login.remote.dto.LoginRequest
 import com.gabrielpopa.myapplication.data.login.remote.dto.LoginResponse
 import com.gabrielpopa.myapplication.domain.common.BaseResult
@@ -13,7 +14,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-class LoginViewModel(private val loginUseCase: LoginUseCase) : ViewModel() {
+class LoginViewModel : ViewModel() {
+
+    private val loginUseCase : LoginUseCase = LoginUseCase()
     private val state = MutableStateFlow<LoginActivityState>(LoginActivityState.Init)
     val mState: StateFlow<LoginActivityState> get() = state
 

@@ -6,6 +6,7 @@ import com.gabrielpopa.myapplication.data.common.utils.WrappedResponse
 import com.gabrielpopa.myapplication.data.second.remote.dto.SecondRequest
 import com.gabrielpopa.myapplication.data.second.remote.dto.SecondResponse
 import com.gabrielpopa.myapplication.domain.common.BaseResult
+import com.gabrielpopa.myapplication.domain.login.usecase.LoginUseCase
 import com.gabrielpopa.myapplication.domain.second.entity.SecondEntity
 import com.gabrielpopa.myapplication.domain.second.usecase.SecondUseCase
 import com.gabrielpopa.myapplication.presentation.common.WrappedState
@@ -16,7 +17,9 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
 
-class SecondViewModel constructor(private val registerUseCase: SecondUseCase) : ViewModel() {
+class SecondViewModel : ViewModel() {
+
+    private val registerUseCase : SecondUseCase = SecondUseCase()
     private val state = MutableStateFlow<SecondActivityState>(SecondActivityState.Init)
     val mState: StateFlow<SecondActivityState> get() = state
 

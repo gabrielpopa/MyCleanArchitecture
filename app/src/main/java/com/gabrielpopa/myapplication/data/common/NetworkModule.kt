@@ -7,9 +7,10 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 object NetworkModule {
 
-    var okHttp : OkHttpClient = provideOkHttp(provideRequestInterceptor())
+    private var okHttp : OkHttpClient = provideOkHttp(provideRequestInterceptor())
+    var retrofit : Retrofit = createRetrofit()
 
-    fun provideRetrofit() : Retrofit {
+    private fun createRetrofit() : Retrofit {
         return Retrofit.Builder().apply {
             addConverterFactory(GsonConverterFactory.create())
             client(okHttp)
