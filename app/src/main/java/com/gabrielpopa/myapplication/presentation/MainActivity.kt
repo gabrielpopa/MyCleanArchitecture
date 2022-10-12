@@ -21,12 +21,21 @@ import com.gabrielpopa.myapplication.data.login.remote.api.LoginApi
 import com.gabrielpopa.myapplication.data.login.remote.dto.LoginRequest
 import com.gabrielpopa.myapplication.data.login.remote.dto.LoginResponse
 import com.gabrielpopa.myapplication.data.login.repository.LoginRepositoryImpl
+import com.gabrielpopa.myapplication.data.second.remote.api.SecondApi
+import com.gabrielpopa.myapplication.data.second.remote.dto.SecondRequest
+import com.gabrielpopa.myapplication.data.second.remote.dto.SecondResponse
+import com.gabrielpopa.myapplication.data.second.repository.SecondRepositoryImpl
 import com.gabrielpopa.myapplication.databinding.ActivityMainBinding
 import com.gabrielpopa.myapplication.domain.login.entity.LoginEntity
 import com.gabrielpopa.myapplication.domain.login.usecase.LoginUseCase
+import com.gabrielpopa.myapplication.domain.second.entity.SecondEntity
+import com.gabrielpopa.myapplication.domain.second.usecase.SecondUseCase
 import com.gabrielpopa.myapplication.presentation.login.LoginActivityState
 import com.gabrielpopa.myapplication.presentation.login.LoginViewModel
 import com.gabrielpopa.myapplication.presentation.login.LoginViewModelFactory
+import com.gabrielpopa.myapplication.presentation.second.SecondActivityState
+import com.gabrielpopa.myapplication.presentation.second.SecondViewModel
+import com.gabrielpopa.myapplication.presentation.second.SecondViewModelFactory
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -39,6 +48,12 @@ class MainActivity : AppCompatActivity() {
         val loginApi = NetworkModule.provideRetrofit().create(LoginApi::class.java)
         val loginRepository = LoginRepositoryImpl(loginApi)
         LoginViewModelFactory(LoginUseCase(loginRepository))
+    }
+
+    private val secondViewModel : SecondViewModel by viewModels {
+        val api = NetworkModule.provideRetrofit().create(SecondApi::class.java)
+        val repo = SecondRepositoryImpl(api)
+        SecondViewModelFactory(SecondUseCase(repo))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,8 +69,13 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         binding.fab.setOnClickListener {
-            val loginRequest = LoginRequest("assdfd@asdfsd.com", "sjdkfhkshjdf")
+            val loginRequest = LoginRequest("johndoe@johndoe.com", "johndoe")
             viewModel.login(loginRequest)
+        }
+
+        binding.second.setOnClickListener {
+            val req = SecondRequest("John Doe", "johndoe@johndoe.com", "johndoe")
+            secondViewModel.doNetworkCall(req)
         }
 
         // Observe states
@@ -64,6 +84,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun observe(){
         viewModel.mState
+            .flowWithLifecycle(lifecycle,  Lifecycle.State.STARTED)
+            .onEach { state -> handleStateChange(state) }
+            .launchIn(lifecycleScope)
+
+        secondViewModel.mState
             .flowWithLifecycle(lifecycle,  Lifecycle.State.STARTED)
             .onEach { state -> handleStateChange(state) }
             .launchIn(lifecycleScope)
@@ -79,6 +104,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun handleStateChange(state: SecondActivityState){
+        when(state){
+            is SecondActivityState.Init -> Unit // do nothing
+            is SecondActivityState.Error -> handleErrorSecond(state.rawResponse)
+            is SecondActivityState.Success -> handleSuccessSecond(state.registerEntity)
+            is SecondActivityState.ShowToast -> Log.e("state", state.message)
+            is SecondActivityState.IsLoading -> handleLoading(state.isLoading)
+        }
+    }
+
     @SuppressLint("SetTextI18n")
     private fun handleLoading(isLoading: Boolean) {
         binding.fab.alpha = if (isLoading) 0.5f else 1.0f
@@ -91,7 +126,16 @@ class MainActivity : AppCompatActivity() {
         binding.textviewActivity.text = "Welcome ${loginEntity.name}"
     }
 
+    @SuppressLint("SetTextI18n")
+    private fun handleSuccessSecond(loginEntity: SecondEntity) {
+        binding.textviewActivity.text = "Welcome ${loginEntity.name}"
+    }
+
     private fun handleErrorLogin(response: WrappedResponse<LoginResponse>) {
+        binding.textviewActivity.text = response.message
+    }
+
+    private fun handleErrorSecond(response: WrappedResponse<SecondResponse>) {
         binding.textviewActivity.text = response.message
     }
 
