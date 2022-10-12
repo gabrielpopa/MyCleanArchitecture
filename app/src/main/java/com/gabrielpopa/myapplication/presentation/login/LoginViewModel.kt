@@ -2,13 +2,10 @@ package com.gabrielpopa.myapplication.presentation.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gabrielpopa.myapplication.data.common.utils.WrappedResponse
-import com.gabrielpopa.myapplication.data.login.LoginModule
 import com.gabrielpopa.myapplication.data.login.remote.dto.LoginRequest
-import com.gabrielpopa.myapplication.data.login.remote.dto.LoginResponse
 import com.gabrielpopa.myapplication.domain.common.BaseResult
-import com.gabrielpopa.myapplication.domain.login.entity.LoginEntity
 import com.gabrielpopa.myapplication.domain.login.usecase.LoginUseCase
+import com.gabrielpopa.myapplication.presentation.common.FlowState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -17,37 +14,24 @@ import kotlinx.coroutines.launch
 class LoginViewModel : ViewModel() {
 
     private val loginUseCase : LoginUseCase = LoginUseCase()
-    private val state = MutableStateFlow<LoginActivityState>(LoginActivityState.Init)
-    val mState: StateFlow<LoginActivityState> get() = state
-
-    private fun setLoading(){
-        state.value = LoginActivityState.IsLoading(true)
-    }
-
-    private fun hideLoading(){
-        state.value = LoginActivityState.IsLoading(false)
-    }
-
-    private fun showToast(message: String){
-        state.value = LoginActivityState.ShowToast(message)
-    }
-
+    private val state = MutableStateFlow<FlowState>(FlowState.Init)
+    val mState: StateFlow<FlowState> get() = state
 
     fun login(loginRequest: LoginRequest){
         viewModelScope.launch {
             loginUseCase.execute(loginRequest)
                 .onStart {
-                    setLoading()
+                    state.value = FlowState.IsLoading(true)
                 }
                 .catch { exception ->
-                    hideLoading()
-                    showToast(exception.message.toString())
+                    state.value = FlowState.IsLoading(false)
+                    state.value = FlowState.ShowToast(exception.message.toString())
                 }
                 .collect { baseResult ->
-                    hideLoading()
+                    state.value = FlowState.IsLoading(false)
                     when(baseResult){
-                        is BaseResult.Error -> state.value = LoginActivityState.ErrorLogin(baseResult.rawResponse)
-                        is BaseResult.Success -> state.value = LoginActivityState.SuccessLogin(baseResult.data)
+                        is BaseResult.Error -> state.value = FlowState.Loaded.Error(baseResult.rawResponse)
+                        is BaseResult.Success -> state.value = FlowState.Loaded.Success(baseResult.data)
                     }
                 }
         }
@@ -55,10 +39,3 @@ class LoginViewModel : ViewModel() {
 
 }
 
-sealed class LoginActivityState {
-    object Init : LoginActivityState()
-    data class IsLoading(val isLoading: Boolean) : LoginActivityState()
-    data class ShowToast(val message: String) : LoginActivityState()
-    data class SuccessLogin(val loginEntity: LoginEntity) : LoginActivityState()
-    data class ErrorLogin(val rawResponse: WrappedResponse<LoginResponse>) : LoginActivityState()
-}
