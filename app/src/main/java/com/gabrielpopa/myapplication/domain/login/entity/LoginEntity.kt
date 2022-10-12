@@ -1,8 +1,10 @@
 package com.gabrielpopa.myapplication.domain.login.entity
 
+import com.gabrielpopa.myapplication.domain.common.Entity
+
 data class LoginEntity(
-    var id : Int,
-    var name: String,
-    var email: String,
-    var token: String
-)
+    override val id : Int,
+    override val name: String,
+    override val email: String,
+    override val token: String
+) : Entity()

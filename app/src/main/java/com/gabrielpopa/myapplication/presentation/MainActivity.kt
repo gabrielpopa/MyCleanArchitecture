@@ -17,8 +17,7 @@ import com.gabrielpopa.myapplication.data.common.utils.WrappedResponse
 import com.gabrielpopa.myapplication.data.login.remote.dto.LoginRequest
 import com.gabrielpopa.myapplication.data.second.remote.dto.SecondRequest
 import com.gabrielpopa.myapplication.databinding.ActivityMainBinding
-import com.gabrielpopa.myapplication.domain.login.entity.LoginEntity
-import com.gabrielpopa.myapplication.domain.second.entity.SecondEntity
+import com.gabrielpopa.myapplication.domain.common.Entity
 import com.gabrielpopa.myapplication.presentation.common.FlowState
 import com.gabrielpopa.myapplication.presentation.login.LoginViewModel
 import com.gabrielpopa.myapplication.presentation.second.SecondViewModel
@@ -76,11 +75,8 @@ class MainActivity : AppCompatActivity() {
             is FlowState.Init -> Unit // do nothing
             is FlowState.ShowToast -> Log.e("state", state.message)
             is FlowState.IsLoading -> handleLoading(state.isLoading)
-            is FlowState.Loaded.Success<*> -> {
-                if (state.value is LoginEntity) handleSuccess(state.value.name)
-                if (state.value is SecondEntity) handleSuccess(state.value.name)
-            }
-            is FlowState.Loaded.Error<*> -> handleError(state.value as WrappedResponse<*>)
+            is FlowState.Loaded.Success -> handleSuccess(state.value)
+            is FlowState.Loaded.Error-> handleError(state.value)
         }
     }
 
@@ -92,8 +88,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("SetTextI18n")
-    private fun handleSuccess(name: String) {
-        binding.textviewActivity.text = "Welcome $name"
+    private fun handleSuccess(entity: Entity) {
+        binding.textviewActivity.text = "Welcome ${entity.name}"
     }
 
     private fun handleError(response: WrappedResponse<*>) {
